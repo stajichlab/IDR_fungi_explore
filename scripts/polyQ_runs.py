@@ -30,7 +30,9 @@ with open(os.path.join(args.outdir,f'summary.tsv'),'w') as sumout:
                 print(name)            
             with open(os.path.join(args.outdir,f'{name}.polyQ.tsv'),'w') as spout:
                 polyQwriter = csv.writer(spout, delimiter='\t')
+                polyQwriter.writerow(['Protein','PolyQlength'])
                 pepcount = 0
+                polyQcount = 0
                 for record in SeqIO.parse(os.path.join(args.indir,file), "fasta"):
                     seqstr = str(record.seq)
                     qLens = []
@@ -40,5 +42,7 @@ with open(os.path.join(args.outdir,f'summary.tsv'),'w') as sumout:
                     qLens.sort(reverse=True) # get longest for individual gene
                     if len(qLens):
                         polyQwriter.writerow([record.id,qLens[0]])
-        sumwriter.writerow([name,pepcount,len(qLens),
-                            f'{len(qLens)/pepcount:.2f}'])
+                        polyQcount += 1
+                if pepcount > 0:
+                    sumwriter.writerow([name,pepcount,polyQcount,
+                                    f'{(polyQcount/pepcount):.4f}'])
